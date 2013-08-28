@@ -75,10 +75,20 @@ EOS
  end
 end
 
+unless $DEBUG
+  exit!(0) if fork
+  Process.setsid
+  exit!(0) if fork
+end
+
 app = RdVUp.new
 DRb.start_service('druby://localhost:54331', app)
+
 unless $DEBUG
-  Process.daemon
+  STDIN.reopen('/dev/null')
+  STDOUT.reopen('/dev/null', 'w')
+  STDERR.reopen('/dev/null', 'w')
 end
+
 DRb.thread.join
 
